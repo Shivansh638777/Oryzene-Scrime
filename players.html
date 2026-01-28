@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Oryzene Esports — Players</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Oryzene Esports Logo">
+  <h1>ORYZENE ESPORTS</h1>
+  <p>Community-driven Esports Organization</p>
+</header>
+
+<nav>
+  <a href="landing.html">Home</a>
+  <a href="index.html">Scrims</a>
+  <a href="past-scrims.html">Past Scrims</a>
+  <a href="community.html">Community</a>
+  <a href="players.html">Players</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="admin.html">Admin</a>
+</nav>
+
+<section>
+  <h2>Apply as Official Player</h2>
+  <div class="card">
+    <form id="player-form">
+      <label>Name</label>
+      <input type="text" name="name" required>
+      <label>Email</label>
+      <input type="email" name="email" required>
+      <label>Phone</label>
+      <input type="text" name="phone" required>
+      <label>Game</label>
+      <select name="game">
+        <option>FF MAX</option>
+        <option>BGMI</option>
+      </select>
+      <label><input type="checkbox" name="nda" value="yes"> I agree to Rules, Policy & NDA</label>
+      <button class="btn" type="submit">Apply</button>
+    </form>
+  </div>
+  <div id="player-status"></div>
+</section>
+
+<footer>© 2026 Oryzene Esports | All Rights Reserved</footer>
+
+<script>
+const pform = document.getElementById('player-form');
+pform.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(pform));
+  if(!data.nda){ alert('You must accept the NDA'); return }
+  await fetch('/api/players', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  document.getElementById('player-status').innerHTML = '<p class="muted">Application submitted. Await approval.</p>';
+  pform.reset();
+});
+</script>
+
+</body>
+</html>

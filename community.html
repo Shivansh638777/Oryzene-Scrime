@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Oryzene Esports — Community</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Oryzene Esports Logo">
+  <h1>ORYZENE ESPORTS</h1>
+  <p>Community-driven Esports Organization</p>
+</header>
+
+<nav>
+  <a href="landing.html">Home</a>
+  <a href="index.html">Scrims</a>
+  <a href="past-scrims.html">Past Scrims</a>
+  <a href="community.html">Community</a>
+  <a href="players.html">Players</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="admin.html">Admin</a>
+</nav>
+
+<section>
+  <h2>Join Community</h2>
+  <div class="card">
+    <form id="join-form">
+      <label>Name</label>
+      <input type="text" name="name" required>
+      <label>WhatsApp / Phone</label>
+      <input type="text" name="phone" required>
+      <label>Why join?</label>
+      <textarea name="note"></textarea>
+      <button class="btn" type="submit">Request to Join</button>
+    </form>
+    <p class="small muted">Requests require admin approval. WhatsApp invite link will be provided after approval.</p>
+  </div>
+
+  <h3>Pending Requests</h3>
+  <div id="requests"></div>
+</section>
+
+<footer>
+  © 2026 Oryzene Esports | All Rights Reserved
+</footer>
+
+<script>
+const form = document.getElementById('join-form');
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(form));
+  await fetch('/api/community', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  alert('Request sent. Await admin approval.');
+  form.reset();
+});
+
+async function loadRequests(){
+  const el = document.getElementById('requests');
+  try{
+    const res = await fetch('/api/community');
+    const data = await res.json();
+    if(!data.length) { el.innerHTML = '<p class="muted">No requests yet.</p>'; return }
+    el.innerHTML = data.map(r=>`<div class="list-item"><b>${r.name}</b> — ${r.phone}<div class="small">${r.note||''} — Approved: ${r.approved? 'Yes':'No'}</div></div>`).join('');
+  }catch(e){ el.innerHTML = '<p class="muted">Failed to load requests.</p>' }
+}
+loadRequests();
+</script>
+
+</body>
+</html>

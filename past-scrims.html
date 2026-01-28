@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Oryzene Esports — Past Scrims</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Oryzene Esports Logo">
+  <h1>ORYZENE ESPORTS</h1>
+  <p>Community-driven Esports Organization</p>
+</header>
+
+<nav>
+  <a href="landing.html">Home</a>
+  <a href="index.html">Scrims</a>
+  <a href="past-scrims.html">Past Scrims</a>
+  <a href="community.html">Community</a>
+  <a href="players.html">Players</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="admin.html">Admin</a>
+</nav>
+
+<section>
+  <h2>Past Scrims</h2>
+  <div id="past-list"></div>
+</section>
+
+<footer>
+  © 2026 Oryzene Esports | All Rights Reserved
+</footer>
+
+<script>
+async function loadPast(){
+  const el = document.getElementById('past-list');
+  try{
+    const res = await fetch('/api/scrims');
+    const data = await res.json();
+    const past = data.filter(s=>s.completed).sort((a,b)=>b.id-a.id);
+    if(!past.length){ el.innerHTML = '<div class="card"><p>No past scrims yet.</p></div>'; return }
+    el.innerHTML = past.map(s=>`<div class="card">
+      <h3>${s.game} — ${s.date}</h3>
+      <p><b>Prize:</b> ${s.prize} | <b>Entry:</b> ₹${s.entry}</p>
+    </div>`).join('');
+  }catch(e){ el.innerHTML = '<p class="muted">Failed to load past scrims.</p>' }
+}
+loadPast();
+</script>
+
+</body>
+</html>

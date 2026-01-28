@@ -3,54 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Oryzene Esports</title>
-  <style>
-    body{
-      margin:0; font-family: Arial, Helvetica, sans-serif;
-      background:#0e0e0e; color:#fff;
-    }
-    header{
-      text-align:center; padding:40px 20px;
-      background:#000;
-    }
-    header img{ max-width:280px; }
-    section{ padding:40px 20px; max-width:900px; margin:auto; }
-    h1,h2{ color:#ff8c00; }
-    .card{
-      background:#151515; padding:20px; margin:20px 0;
-      border-radius:10px;
-    }
-    .btn{
-      display:inline-block; padding:12px 20px;
-      background:#ff8c00; color:#000; text-decoration:none;
-      border-radius:6px; font-weight:bold;
-    }
-    footer{
-      text-align:center; padding:20px; background:#000;
-      font-size:14px; color:#aaa;
-    }
-  </style>
+  <title>Oryzene Esports — Current Scrim</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header>
-  <img src="oryzene1.png" alt="Oryzene Esports Logo">
+  <img src="assets/logo.png" alt="Oryzene Esports Logo">
   <h1>ORYZENE ESPORTS</h1>
   <p>Community-driven Esports Organization</p>
 </header>
 
-<section>
-  <h2>About Us</h2>
-  <div class="card">
-    <p>Oryzene Esports is a growing community-based esports organization focused on FF MAX competitive scrims, tournaments, and player development.</p>
-  </div>
+<nav>
+  <a href="landing.html">Home</a>
+  <a href="index.html">Scrims</a>
+  <a href="past-scrims.html">Past Scrims</a>
+  <a href="community.html">Community</a>
+  <a href="players.html">Players</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="admin.html">Admin</a>
+</nav>
 
+<section>
   <h2>Current Scrim</h2>
-  <div class="card">
-    <p><b>Game:</b> FF MAX</p>
-    <p><b>Entry:</b> ₹100 per team</p>
-    <p><b>Prize:</b> Winner Takes All</p>
-    <p><b>Date:</b> 31/01/2026 – 8:00 PM</p>
+  <div class="card" id="current-scrim">
+    <p class="small muted">Loading current scrim...</p>
   </div>
 
   <h2>Contact & Registration</h2>
@@ -64,6 +41,33 @@
 <footer>
   © 2026 Oryzene Esports | All Rights Reserved
 </footer>
+
+<script>
+async function loadScrim(){
+  const el = document.getElementById('current-scrim');
+  try{
+    const res = await fetch('/api/scrims');
+    const data = await res.json();
+    const current = data.filter(s=>!s.completed).sort((a,b)=>b.id-a.id)[0];
+    if(!current){ el.innerHTML = '<p>No active scrims at the moment.</p>'; return }
+    el.innerHTML = `
+      <div class="row">
+        <div style="flex:1">
+          <img src="${current.poster||'assets/poster_ffmax.jpg'}" class="poster" alt="poster">
+        </div>
+        <div style="flex:1">
+          <p><b>Game:</b> ${current.game}</p>
+          <p><b>Entry:</b> ₹${current.entry} per team</p>
+          <p><b>Prize:</b> ${current.prize}</p>
+          <p><b>Date:</b> ${current.date}</p>
+          <a class="btn" href="https://wa.me/916387772010">Register via WhatsApp</a>
+        </div>
+      </div>
+    `;
+  }catch(e){ el.innerHTML = '<p class="muted">Failed to load scrim.</p>' }
+}
+loadScrim();
+</script>
 
 </body>
 </html>

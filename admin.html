@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Oryzene Admin</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Oryzene Esports Logo">
+  <h1>ORYZENE ADMIN</h1>
+</header>
+
+<nav>
+  <a href="landing.html">Home</a>
+  <a href="index.html">Scrims</a>
+  <a href="past-scrims.html">Past Scrims</a>
+  <a href="community.html">Community</a>
+  <a href="players.html">Players</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="admin.html">Admin</a>
+</nav>
+
+<section>
+  <h2>Admin Login</h2>
+  <div class="card">
+    <form id="login">
+      <label>Email</label>
+      <input type="email" name="email" required>
+      <label>Password</label>
+      <input type="password" name="password" required>
+      <label>Admin Code</label>
+      <input type="text" name="code" required>
+      <button class="btn" type="submit">Login</button>
+    </form>
+    <div id="login-status" class="small muted"></div>
+  </div>
+
+  <div id="admin-area" style="display:none">
+    <h3>Manage Scrims</h3>
+    <div class="card">
+      <form id="scrim-form">
+        <label>Game</label>
+        <input name="game" required>
+        <label>Date</label>
+        <input name="date" required>
+        <label>Entry (₹)</label>
+        <input name="entry" required>
+        <label>Prize</label>
+        <input name="prize" required>
+        <label>Poster URL (optional)</label>
+        <input name="poster">
+        <button class="btn" type="submit">Create Scrim</button>
+      </form>
+    </div>
+
+    <h3>Pending Approvals</h3>
+    <div class="card">
+      <div id="approvals">Loading...</div>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 Oryzene Esports | All Rights Reserved</footer>
+
+<script>
+let token = null;
+const login = document.getElementById('login');
+login.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(login));
+  const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  const j = await res.json();
+  if(j.token){ token = j.token; localStorage.setItem('admin_token', token); document.getElementById('admin-area').style.display='block'; document.getElementById('login-status').innerText='Logged in'; loadApprovals(); }
+  else document.getElementById('login-status').innerText = j.message || 'Login failed';
+});
+
+const sform = document.getElementById('scrim-form');
+sform.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(sform));
+  await fetch('/api/scrims', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('admin_token')}, body:JSON.stringify(data)});
+  alert('Scrim created');
+  sform.reset();
+});
+
+async function loadApprovals(){
+  const el = document.getElementById('approvals');
+  const [com,players,sponsors] = await Promise.all([
+    fetch('/api/community').then(r=>r.json()),
+    fetch('/api/players').then(r=>r.json()),
+    fetch('/api/sponsors').then(r=>r.json())
+  ]);
+  el.innerHTML = '<b>Community:</b>' + (com.length? com.map(c=>`<div class="list-item">${c.name} ${c.approved? '(Approved)':'<button onclick="approve(\'community\',\''+c.id+"\')">Approve</button>"}</div>`).join('') : '<p class="muted">No requests</p>')
+  + '<b>Players:</b>' + (players.length? players.map(p=>`<div class="list-item">${p.name} - ${p.game} ${p.approved? '(Approved)':'<button onclick="approve(\'players\',\''+p.id+"\')">Approve</button>"}</div>`).join('') : '<p class="muted">No players</p>')
+  + '<b>Sponsors:</b>' + (sponsors.length? sponsors.map(s=>`<div class="list-item">${s.brand} ${s.approved? '(Approved)':'<button onclick="approve(\'sponsors\',\''+s.id+"\')">Approve</button>"}</div>`).join('') : '<p class="muted">No sponsors</p>');
+}
+
+window.approve = async (type,id)=>{
+  await fetch('/api/'+type, { method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('admin_token')}, body:JSON.stringify({id,approved:true})});
+  loadApprovals();
+}
+
+window.addEventListener('load', ()=>{
+  const t = localStorage.getItem('admin_token');
+  if(t){ document.getElementById('admin-area').style.display='block'; loadApprovals(); }
+});
+</script>
+
+</body>
+</html>

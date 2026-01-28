@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Oryzene Esports — Sponsors</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Oryzene Esports Logo">
+  <h1>ORYZENE ESPORTS</h1>
+  <p>Community-driven Esports Organization</p>
+</header>
+
+<nav>
+  <a href="landing.html">Home</a>
+  <a href="index.html">Scrims</a>
+  <a href="past-scrims.html">Past Scrims</a>
+  <a href="community.html">Community</a>
+  <a href="players.html">Players</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="admin.html">Admin</a>
+</nav>
+
+<section>
+  <h2>Sponsor / Brand Inquiry</h2>
+  <div class="card">
+    <form id="sponsor-form">
+      <label>Brand Name</label>
+      <input type="text" name="brand" required>
+      <label>Contact Person</label>
+      <input type="text" name="contact" required>
+      <label>Email</label>
+      <input type="email" name="email" required>
+      <label>Message</label>
+      <textarea name="message"></textarea>
+      <button class="btn" type="submit">Send Inquiry</button>
+    </form>
+  </div>
+  <div id="sponsor-status"></div>
+</section>
+
+<footer>© 2026 Oryzene Esports | All Rights Reserved</footer>
+
+<script>
+const sform = document.getElementById('sponsor-form');
+sform.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(sform));
+  await fetch('/api/sponsors', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  document.getElementById('sponsor-status').innerHTML = '<p class="muted">Inquiry submitted. We will contact you.</p>';
+  sform.reset();
+});
+</script>
+
+</body>
+</html>
